@@ -85,7 +85,7 @@ sequenceDiagram
     React->>Student: Renders AI text bubble & executes smooth auto-scroll
 ```
 
-
+---
 
 ## Tech Stack
 
