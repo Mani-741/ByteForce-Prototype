@@ -4,7 +4,90 @@ LearnSphereAI is an AI-powered, curriculum-aligned academic learning platform de
 
 ---
 
-## 🏗️ System Architecture & Tech Stack
+## 🏗️ System Architecture :
+
+```mermaid
+graph TD
+    %% Presentation Layer
+    subgraph Frontend [Presentation Layer - React 19 / Vite]
+        A[HomeView] --> B[LoginView]
+        B --> C[DashboardView]
+        C --> D[Sidebar Navigation]
+        D --> E[AIChatView]
+        D --> F[CoursesView]
+        D --> G[HelpDeskView]
+        D --> H[CodeEditorView]
+    end
+
+    %% Application API Layer
+    subgraph Backend [Application Layer - ASP.NET Core 8.0 Web API]
+        I[AuthController]
+        J[AiController]
+        K[CoursesController]
+        L[HelpDeskController]
+        
+        M[AppDbContext]
+        N[Domain Models<br>User, Course, ChatMessage, etc.]
+        
+        I --> M
+        J --> M
+        K --> M
+        L --> M
+        M --> N
+    end
+
+    %% External & Storage Services
+    subgraph DataTier [Data & External Infrastructure]
+        O[(SQL Server Database<br>LearnSphereDB)]
+        P[Google Gemini API<br>gemini-2.5-flash]
+    end
+
+    %% Communication Links
+    Frontend -- "HTTP Client Requests (JSON)" --> Backend
+    M -- "EF Core / T-SQL" --> O
+    J -- "HttpClient POST" --> P
+
+    %% Theme Settings
+    style Frontend fill:#f9f9ff,stroke:#6366f1,stroke-width:2px
+    style Backend fill:#f5f7fa,stroke:#10b981,stroke-width:2px
+    style DataTier fill:#fff7ed,stroke:#f97316,stroke-width:2px
+```
+
+
+## End-to-End AI Chat Sequence Diagram
+
+``` mermaid
+sequenceDiagram
+    autonumber
+    actor Student as Student (UI)
+    participant React as AIChatView (React State)
+    participant API as AiController (.NET API)
+    participant DB as AppDbContext (SQL Server)
+    participant Gemini as Gemini API (Google)
+
+    Student->>React: Types prompt & clicks Send
+    Note over React: Appends user message to UI state<br/>Triggers isLoading (pulse animation)
+    React->>API: HTTP POST /api/Ai/chat (UserId, SessionId, Message)
+    
+    activate API
+    API->>DB: Instantiates ChatMessage (Role="user") & saves to Database
+    
+    API->>Gemini: HTTP POST Request payload to generateContent endpoint
+    activate Gemini
+    Gemini-->>API: Returns JSON response containing generated text string
+    deactivate Gemini
+    
+    API->>DB: Instantiates ChatMessage (Role="assistant") & saves to Database
+    API-->>React: Returns Response DTO (role, text, sessionId)
+    deactivate API
+
+    Note over React: Sets isLoading to false
+    React->>Student: Renders AI text bubble & executes smooth auto-scroll
+```
+
+
+
+## Tech Stack
 
 The workspace is split into two major layers:
 
